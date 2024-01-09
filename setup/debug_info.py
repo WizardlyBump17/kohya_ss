@@ -22,17 +22,6 @@ python_compiler = platform.python_compiler()
 print("\nPython Information:")
 print(f"Version: {python_version}, Implementation: {python_implementation}, Compiler: {python_compiler}")
 
-# Get virtual environment information
-venv = os.environ.get('VIRTUAL_ENV', None)
-
-# Print virtual environment information
-if venv:
-    print("\nVirtual Environment Information:")
-    print(f"Path: {venv}")
-else:
-    print("\nVirtual Environment Information:")
-    print("Not running inside a virtual environment.")
-
 # Get GPU information (requires nvidia-smi to be installed)
 try:
     output = subprocess.check_output(['nvidia-smi', '--query-gpu=name,memory.total', '--format=csv'])

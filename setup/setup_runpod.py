@@ -24,25 +24,7 @@ def configure_accelerate():
 
 
 def setup_environment():
-    # Get the directory the script is run from
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-
-    # Install tk and python3.10-venv
-    log.info("Install tk and python3.10-venv...")
-    subprocess.run(['apt', 'update', '-y'])
-    subprocess.run(['apt', 'install', '-y', 'python3-tk', 'python3.10-venv'])
-
-    # Check if the venv folder doesn't exist
-    venv_dir = os.path.join(script_dir, 'venv')
-    if not os.path.exists(venv_dir):
-        log.info("Creating venv...")
-        subprocess.run(['python3', '-m', 'venv', venv_dir])
-
-    # Activate the virtual environment
-    log.info("Activate venv...")
-    activate_script = os.path.join(venv_dir, 'bin', 'activate')
-    activate_command = f'source "{activate_script}" || exit 1'
-    subprocess.run(activate_command, shell=True, executable='/bin/bash')
+    pass
 
 
 def main_menu(platform_requirements_file):

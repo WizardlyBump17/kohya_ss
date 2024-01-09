@@ -29,12 +29,6 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "$0")" && pwd)
 # Step into GUI local directory
 cd "$SCRIPT_DIR" || exit 1
 
-if [ -d "$SCRIPT_DIR/venv" ]; then
-    source "$SCRIPT_DIR/venv/bin/activate" || exit 1
-else
-    echo "venv folder does not exist. Not activating..."
-fi
-
 # Check if LD_LIBRARY_PATH environment variable exists
 if [[ -z "${LD_LIBRARY_PATH}" ]]; then
     # Set the ANSI escape sequence for yellow text
@@ -72,9 +66,6 @@ fi
 #Set OneAPI if it's not set by the user
 if [[ "$@" == *"--use-ipex"* ]]
 then
-    if [ -d "$SCRIPT_DIR/venv" ]; then
-        export LD_LIBRARY_PATH=$(realpath "$SCRIPT_DIR/venv")/lib/:$LD_LIBRARY_PATH
-    fi
     export NEOReadDebugKeys=1
     export ClDeviceGlobalMemSizeAvailablePercent=100
     if [[ -z "$STARTUP_CMD" ]] && [[ -z "$DISABLE_IPEXRUN" ]] && [ -x "$(command -v ipexrun)" ]

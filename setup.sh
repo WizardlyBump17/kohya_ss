@@ -87,7 +87,6 @@ VERBOSITY=2
 MAXVERBOSITY=6
 DIR=""
 PARENT_DIR=""
-VENV_DIR=""
 USE_IPEX=false
 
 # Function to get the distro name
@@ -183,23 +182,6 @@ create_symlinks() {
 # Function to install Python dependencies
 install_python_dependencies() {
   local TEMP_REQUIREMENTS_FILE
-
-  # Switch to local virtual env
-  echo "Switching to virtual Python environment."
-  if ! inDocker; then
-    if command -v python3.10 >/dev/null; then
-      python3.10 -m venv "$DIR/venv"
-    elif command -v python3 >/dev/null; then
-      python3 -m venv "$DIR/venv"
-    else
-      echo "Valid python3 or python3.10 binary not found."
-      echo "Cannot proceed with the python steps."
-      return 1
-    fi
-
-    # Activate the virtual environment
-    source "$DIR/venv/bin/activate"
-  fi
 
   case "$OSTYPE" in
     "lin"*)
@@ -368,7 +350,6 @@ Script directory is ${SCRIPT_DIR}." >&5
 
 # This must be set after the getopts loop to account for $DIR changes.
 PARENT_DIR="$(dirname "${DIR}")"
-VENV_DIR="$DIR/venv"
 
 if [ -w "$PARENT_DIR" ] && [ ! -d "$DIR" ]; then
   echo "Creating install folder ${DIR}."
@@ -521,39 +502,6 @@ if [[ "$OSTYPE" == "lin"* ]]; then
 
   # We need just a little bit more setup for non-interactive environments
   if [ "$RUNPOD" = true ]; then
-    if inDocker; then
-      # We get the site-packages from python itself, then cut the string, so no other code changes required.
-      VENV_DIR=$(python -c "import site; print(site.getsitepackages()[0])")
-      VENV_DIR="${VENV_DIR%/lib/python3.10/site-packages}"
-    fi
-
-    # Symlink paths
-    libnvinfer_plugin_symlink="$VENV_DIR/lib/python3.10/site-packages/tensorrt/libnvinfer_plugin.so.7"
-    libnvinfer_symlink="$VENV_DIR/lib/python3.10/site-packages/tensorrt/libnvinfer.so.7"
-    libcudart_symlink="$VENV_DIR/lib/python3.10/site-packages/nvidia/cuda_runtime/lib/libcudart.so.11.0"
-
-    #Target file paths
-    libnvinfer_plugin_target="$VENV_DIR/lib/python3.10/site-packages/tensorrt/libnvinfer_plugin.so.8"
-    libnvinfer_target="$VENV_DIR/lib/python3.10/site-packages/tensorrt/libnvinfer.so.8"
-    libcudart_target="$VENV_DIR/lib/python3.10/site-packages/nvidia/cuda_runtime/lib/libcudart.so.12"
-
-    # echo "Checking symlinks now."
-    # create_symlinks "$libnvinfer_plugin_symlink" "$libnvinfer_plugin_target"
-    # create_symlinks "$libnvinfer_symlink" "$libnvinfer_target"
-    # create_symlinks "$libcudart_symlink" "$libcudart_target"
-
-    # if [ -d "${VENV_DIR}/lib/python3.10/site-packages/tensorrt/" ]; then
-    #   export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${VENV_DIR}/lib/python3.10/site-packages/tensorrt/"
-    # else
-    #   echo "${VENV_DIR}/lib/python3.10/site-packages/tensorrt/ not found; not linking library."
-    # fi
-
-    # if [ -d "${VENV_DIR}/lib/python3.10/site-packages/tensorrt/" ]; then
-    #   export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${VENV_DIR}/lib/python3.10/site-packages/nvidia/cuda_runtime/lib/"
-    # else
-    #   echo "${VENV_DIR}/lib/python3.10/site-packages/nvidia/cuda_runtime/lib/ not found; not linking library."
-    # fi
-
     configure_accelerate
 
     # This is a non-interactive environment, so just directly call gui.sh after all setup steps are complete.
